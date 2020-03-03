@@ -9,6 +9,7 @@ int main(int argc, char *argv[]) {
     struct dirent *direntp;  
     struct stat stat_buf;  
     char *str;  
+    char name[257];
     if (argc != 2)  
     {   
         fprintf( stderr, "Usage: %s dir_name\n", argv[0]);   
@@ -18,10 +19,15 @@ int main(int argc, char *argv[]) {
     {   
         perror(argv[1]);   
         exit(2);  
-    }  
+    }
     while ((direntp = readdir( dirp)) != NULL)  
     {   
-        lstat(direntp->d_name, &stat_buf);   
+        sprintf(name, "%s/%s", argv[1], direntp->d_name);
+        if(lstat(direntp->d_name, &stat_buf) == -1)
+        {
+            perror("lstat ERROR");
+            exit(3);
+        }  
         if (S_ISREG(stat_buf.st_mode)) 
             str = "regular";   
         else if (S_ISDIR(stat_buf.st_mode)) 

@@ -2,43 +2,31 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdbool.h>
+#include <string.h>
 
 
 int main(void) {
     int fd1;
-    unsigned char ch, name[50], mark[3];
-    fd1 = open("students.txt", O_WRONLY | O_APPEND | O_CREAT | O_EXCL, 0644);
+    char ch, name[50], mark[3];
+    fd1 = open("students.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
     do
     {
-        write(STDOUT_FILENO, "Name : ", 7);
-        int i = 0;
-        do {
-            read(STDIN_FILENO, &ch, 1);
-            name[i] = ch;
-            i++;
-        } while(ch != '\n');
-        name[i] = 0;
-        write(fd1, name, sizeof(name));
+        printf("Name?\n");
+        scanf("%s", name);
+        write(fd1, name, strlen(name));
+        write(fd1, "\n", strlen("\n"));
 
-        write(STDOUT_FILENO, "Mark : ", 7);
-        i = 0;
-        while (i < 2 && read(STDIN_FILENO, &ch, 1) && ch != '\n') {   
-            mark[i++] = ch;   
-        }
-        mark[i] = 0;
-        write(fd1, mark, sizeof(mark));
+        printf("Mark?\n");
+        scanf("%s", mark);
+        write(fd1, mark, strlen(mark));
+        write(fd1, "\n", strlen("\n"));
 
-        write(STDOUT_FILENO, "Done? [Y/N]", 11);
-        read(STDIN_FILENO, &ch, 1);
-        if (ch == 'Y') {
-            read(STDIN_FILENO, &ch, 1);
-            break;
-        }
-        else {
-            read(STDIN_FILENO, &ch, 1);
-        }
-    } while (true);
+        getchar();
+        printf("Done? [Y/N]");
+        scanf("%c", &ch);
+       
+    } while (ch != 'Y');
     
     close(fd1);
     return 0;
