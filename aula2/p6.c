@@ -4,12 +4,12 @@
 #include <dirent.h> 
 #include <sys/stat.h> 
 #include <errno.h> 
+
 int main(int argc, char *argv[]) {  
     DIR *dirp;  
     struct dirent *direntp;  
     struct stat stat_buf;  
     char *str;  
-    char name[257];
     if (argc != 2)  
     {   
         fprintf( stderr, "Usage: %s dir_name\n", argv[0]);   
@@ -21,9 +21,8 @@ int main(int argc, char *argv[]) {
         exit(2);  
     }
     while ((direntp = readdir( dirp)) != NULL)  
-    {   
-        sprintf(name, "%s/%s", argv[1], direntp->d_name);
-        if(lstat(direntp->d_name, &stat_buf) == -1)
+    {
+        if(stat(direntp->d_name, &stat_buf) == -1)
         {
             perror("lstat ERROR");
             exit(3);
@@ -35,6 +34,13 @@ int main(int argc, char *argv[]) {
         else 
             str = "other";   
         printf("%-25s - %s\n", direntp->d_name, str);  
+        if(S_ISDIR(stat_buf.st_mode))
+            printf("i-node: %ld\n", direntp->d_ino);
+        else
+        {
+            printf("size: %ld bytes\n", stat_buf.st_size);
+        }
+        
     }  
     closedir(dirp);  
     exit(0); 
