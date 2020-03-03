@@ -22,11 +22,12 @@ int main(int argc, char *argv[]) {
     }
     while ((direntp = readdir( dirp)) != NULL)  
     {
-        if(stat(direntp->d_name, &stat_buf) == -1)
-        {
-            perror("lstat ERROR");
-            exit(3);
-        }  
+        lstat(direntp->d_name, &stat_buf);
+        // if( == -1)
+        // {
+        //     perror("lstat ERROR");
+        //     exit(3);
+        // }  
         if (S_ISREG(stat_buf.st_mode)) 
             str = "regular";   
         else if (S_ISDIR(stat_buf.st_mode)) 
