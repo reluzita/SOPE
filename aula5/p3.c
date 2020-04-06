@@ -1,43 +1,42 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+
 #define MAXLINE 500
 #define PAGER "sort"
+#define READ 0
+#define WRITE 1
 
 int main(int argc, char *argv[])
 {
-    char line[MAXLINE];
+    char buffer[255];
+    int fd[2], file_fd, nr, n_itens=0;
+    pid_t pid;
     FILE *fpin, *fpout;
     if (argc != 2)
     {
         printf("usage: %s filename\n", argv[0]);
         exit(1);
     }
-    if ((fpin = fopen(argv[1], "r")) == NULL)
-    {
-        fprintf(stderr, "can't open %s", argv[1]);
+    char* line = NULL;
+
+    if(pipe(fd) < 0) {
         exit(1);
     }
-    if ((fpout = popen(PAGER, "w")) == NULL)
-    {
-        fprintf(stderr, "popen error");
-        exit(1);
-    } /* copy filename contents to pager - file=argv[1] */
-    while (fgets(line, MAXLINE, fpin) != NULL)
-    {
-        if(fputs(line, fpout) == EOF) {
-            printf("fputs error to pipe\n");
-        }
+    pid = fork();
+    if(pid > 0) {
+        close(fd[READ]);
+        dup2(fd[WRITE], STDOUT_FILENO);
+        execlp("cat", "cat", argv[1], NULL);
     }
-    if (ferror(fpin))
+    else
     {
-        fprintf(stderr, "fgets error");
-        exit(1);
+        close(fd[WRITE]);
+        dup2(fd[READ], STDIN_FILENO);
+        execlp(PAGER, PAGER, NULL);
     }
-    if (pclose(fpout) == -1)
-    {
-        fprintf(stderr, "pclose error");
-        exit(1);
-    }
+    
     exit(0);
 }
